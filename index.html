@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Superset Dashboard</title>
+
+  <!-- Superset Embedded SDK -->
+  <script src="https://unpkg.com/@superset-ui/embedded-sdk"></script>
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      background-color: #ffffff;
+    }
+
+    #superset-container {
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* Force iframe to full size (important fallback) */
+    #superset-container iframe {
+      width: 100vw !important;
+      height: 100vh !important;
+      border: none;
+    }
+
+    #error {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      color: red;
+      font-family: Arial, sans-serif;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="error"></div>
+  <div id="superset-container"></div>
+
+  <script>
+    try {
+      // 🔥 Read params from URL
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("token");
+      const dashboardId = params.get("id");
+
+      if (!token || !dashboardId) {
+        document.getElementById("error").innerText =
+          "Missing token or dashboardId in URL";
+        throw new Error("Missing params");
+      }
+
+      // 🚀 Embed Superset Dashboard
+      supersetEmbeddedSdk.embedDashboard({
+        id: dashboardId,
+        supersetDomain: "https://superset-bi-production.up.railway.app",
+        mountPoint: document.getElementById("superset-container"),
+        fetchGuestToken: () => token,
+
+        dashboardUiConfig: {
+          hideTitle: true,
+          hideChartControls: true,
+          hideTab: true
+        },
+
+        // 🔥 Force full screen
+        height: "100%",
+        width: "100%"
+      });
+
+    } catch (err) {
+      document.getElementById("error").innerText =
+        "Error: " + err.message;
+      console.error(err);
+    }
+  </script>
+</body>
+</html>
